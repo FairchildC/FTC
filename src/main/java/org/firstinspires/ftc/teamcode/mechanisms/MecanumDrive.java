@@ -9,12 +9,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MecanumDrive {
 
     // Declare OpMode members for each of the 4 motors.
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeftDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backRightDrive = null;
-    private double SPIN_DAMPING = 2.0;   // higher means slower turning
+    private final double SPIN_DAMPING = 2.0;   // higher means slower turning
 
     public void init(HardwareMap hwMap) {
 

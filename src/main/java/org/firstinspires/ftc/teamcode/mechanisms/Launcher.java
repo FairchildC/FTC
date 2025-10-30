@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -68,7 +67,7 @@ public class Launcher {
         leftFeeder.setDirection(CRServo.Direction.REVERSE);
 
         // Set initial state of launcher to IDLE.
-        launchState = launchState.IDLE;
+        launchState = LaunchState.IDLE;
         stopFeeder();
         stopLauncher();
     }
@@ -122,7 +121,7 @@ public class Launcher {
     }
 
     public String getState() {
-        return launchState.toString()
+        return launchState.toString();
     }
 
     public double getVelocity() {
