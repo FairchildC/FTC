@@ -18,11 +18,12 @@ public class Launcher {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
+    final double LAUNCHER_TARGET_VELOCITY = 1125;    private DcMotor lowerlaunch,upperlaunch;
+
     final double LAUNCHER_MIN_VELOCITY = 1075;
 
-    private DcMotorEx launcher;
-    private CRServo leftFeeder, rightFeeder;
+    private DcMotorEx lowerLaunch, upperLaunch;
+    private CRServo launchFeeder;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -52,19 +53,27 @@ public class Launcher {
     private LaunchState launchState;
 
     public void init (HardwareMap hwMap) {
-        launcher = hwMap.get(DcMotorEx.class, "launcher");
-        leftFeeder = hwMap.get(CRServo.class,"left_feeder");
-        rightFeeder = hwMap.get(CRServo.class, "right_feeder");
+        upperLaunch = hwMap.get(DcMotorEx.class, "upper_launch");
+        lowerLaunch = hwMap.get(DcMotorEx.class, "lower_launch");
+        launchFeeder = hwMap.get(CRServo.class,"launch_feeder");
 
         // Set launcher motor to RUN_USING_ENCODER and BRAKE to slow down faster than coasting.
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // upperLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // lowerLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        upperLaunch.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lowerLaunch.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        upperLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lowerLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+        /* add these lines when encoders have been attached to the launch motors
+        upperLaunch.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
                 300, 0, 0, 10));
+        lowerLaunch.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                300, 0, 0, 10));
+        */
 
         // Set left feeder servo to reverse so both servos work to feed ball into robot.
-        leftFeeder.setDirection(CRServo.Direction.REVERSE);
+        launchFeeder.setDirection(CRServo.Direction.REVERSE);
 
         // Set initial state of launcher to IDLE.
         launchState = LaunchState.IDLE;
@@ -74,8 +83,7 @@ public class Launcher {
 
     public void stopFeeder() {
         // Set feeders to a preset value to stop the servos.
-        leftFeeder.setPower(STOP_SPEED);
-        rightFeeder.setPower(STOP_SPEED);
+        launchFeeder.setPower(STOP_SPEED);
     }
 
     public void updateState () {
@@ -83,15 +91,15 @@ public class Launcher {
             case IDLE:
                 break;
             case SPIN_UP:
-                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+                upperLaunch.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                if ((upperLaunch.getVelocity() > LAUNCHER_MIN_VELOCITY) &&
+                        (lowerLaunch.getVelocity() > LAUNCHER_MIN_VELOCITY)){
                     // transition states
                     launchState = LaunchState.LAUNCH;
                 }
                 break;
             case LAUNCH:
-                leftFeeder.setPower(FULL_SPEED);
-                rightFeeder.setPower(FULL_SPEED);
+                launchFeeder.setPower(FULL_SPEED);
                 feederTimer.reset();
                 // transition state
                 launchState = LaunchState.LAUNCHING;
@@ -111,12 +119,12 @@ public class Launcher {
             // transition states
             launchState = LaunchState.SPIN_UP;
         }
-
     }
 
     public void stopLauncher () {
         stopFeeder();
-        launcher.setVelocity(STOP_SPEED);
+        upperLaunch.setVelocity(STOP_SPEED);
+        lowerLaunch.setVelocity(STOP_SPEED);
         launchState = LaunchState.IDLE;
     }
 
@@ -124,8 +132,13 @@ public class Launcher {
         return launchState.toString();
     }
 
-    public double getVelocity() {
-        return launcher.getVelocity();
+    public double getUpperVelocity() {
+        return upperLaunch.getVelocity();
     }
+
+    public double getLowerVelocity() {
+        return lowerLaunch.getVelocity();
+    }
+
 
 }

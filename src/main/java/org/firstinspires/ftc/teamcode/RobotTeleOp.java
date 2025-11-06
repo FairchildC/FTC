@@ -39,7 +39,8 @@ public class RobotTeleOp extends OpMode {
         launcher.updateState();
 
         telemetry.addData("State", launcher.getState());
-        telemetry.addData("Launcher Velocity", launcher.getVelocity());
+        telemetry.addData("Upper Launch Velocity", launcher.getUpperVelocity());
+        telemetry.addData("Lower Launch Velocity", launcher.getLowerVelocity());
     }
 }
 
