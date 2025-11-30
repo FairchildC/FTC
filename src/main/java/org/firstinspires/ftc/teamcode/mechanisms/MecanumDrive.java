@@ -20,16 +20,16 @@ public class MecanumDrive {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the Driver Hub.
-        frontLeftDrive = hwMap.get(DcMotor.class, "front_left_drive");
-        backLeftDrive = hwMap.get(DcMotor.class, "back_left_drive");
-        frontRightDrive = hwMap.get(DcMotor.class, "front_right_drive");
-        backRightDrive = hwMap.get(DcMotor.class, "back_right_drive");
+        frontLeftDrive = hwMap.get(DcMotor.class, "left_front");
+        backLeftDrive = hwMap.get(DcMotor.class, "left_back");
+        frontRightDrive = hwMap.get(DcMotor.class, "right_front");
+        backRightDrive = hwMap.get(DcMotor.class, "right_back");
 
         // Set the left motors in reverse which is needed for drive trains where the left
         // motors are opposite to the right ones.
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // This uses RUN_WITHOUT_ENCODER because we are using the dead wheels.
@@ -45,8 +45,8 @@ public class MecanumDrive {
         backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses START)
-        telemetry.addData("Status", "Mecanum Drive Initialized");
-        telemetry.update();
+        //telemetry.addData("Status", "Mecanum Drive Initialized");
+        //telemetry.update();
     }
 
     public void drive(double axial, double lateral, double yaw) {
@@ -81,9 +81,9 @@ public class MecanumDrive {
         backRightDrive.setPower(backRightPower);
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status","Run Time: "+runtime.toString());
-        telemetry.addData("Front left/Right","%4.2f, %4.2f",frontLeftPower,frontRightPower);
-        telemetry.addData("Back  left/Right","%4.2f, %4.2f",backLeftPower,backRightPower);
-        telemetry.update();
+        //telemetry.addData("Status","Run Time: "+runtime.toString());
+        //telemetry.addData("Front left/Right","%4.2f, %4.2f",frontLeftPower,frontRightPower);
+        //telemetry.addData("Back  left/Right","%4.2f, %4.2f",backLeftPower,backRightPower);
+        //telemetry.update();
     }
 }

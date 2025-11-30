@@ -1,15 +1,25 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import com.qualcomm.robotcore.hardware.Servo;
+import static java.lang.Thread.sleep;
+
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
-    private final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
-    private final double START_POSITION = 0.0; //We send this power to the servos when we want them to stop.
-    private final double FEED_POSITION = 0.25;
+    private final int FEED_TIME_MILLISECONDS = 2000; //The feeder servo runs this long when a shot is requested.
+    private final double FEED_START_POSITION = 0.0; // nominally 0 degrees, may need to be tuned based on mounting angle of servo
+    private final double FEED_POSITION = 0.5; // nominally 90 degrees, may need to increase it slightly
+
+    private DcMotorEx lowerLaunch, upperLaunch;
+    private Servo launchFeeder;
+
+    //private int _launchSpeed = 0; // Commanded launch motor velocity
+
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -17,16 +27,17 @@ public class Launcher {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
-    final double LAUNCHER_STOP = 0;
+    final double LAUNCHER_TARGET_VELOCITY = 1600;
+    final double LAUNCHER_MIN_VELOCITY = 1500;
 
-    private DcMotorEx lowerLaunch, upperLaunch;
-    private Servo launchFeeder;
+    private final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
+    //private final double FULL_SPEED = 1.0;
+
 
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
+     * NOTE: we are not currently using the state machine
      * TECH TIP: State Machines
      * We use a "state machine" to control our launcher motor and feeder servos in this program.
      * The first step of a state machine is creating an enum that captures the different "states"
@@ -57,36 +68,142 @@ public class Launcher {
         launchFeeder = hwMap.get(Servo.class,"launch_feeder");
 
         // Set launcher motor to RUN_USING_ENCODER and BRAKE to slow down faster than coasting.
-        upperLaunch.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        lowerLaunch.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        upperLaunch.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        lowerLaunch.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        // add these lines when encoders have been attached to the launch motors
-        upperLaunch.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+        // TODO: add these back in with full battery to test if they work (or at leats do not break anything)
+        upperLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lowerLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        upperLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lowerLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+        // TODO: tets to see if this makes a difference
+        /* add these lines when encoders have been attached to the launch motors
+        upperLaunch.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
                 300, 0, 0, 10));
-        lowerLaunch.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+        lowerLaunch.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
                 300, 0, 0, 10));
+*/
 
         // Set left feeder servo to reverse so both servos work to feed ball into robot.
         launchFeeder.setDirection(Servo.Direction.REVERSE);
+        resetFeeder(); // default it to "0" degrees
 
         // Set initial state of launcher to IDLE.
         launchState = LaunchState.IDLE;
-        stopFeeder();
+        //stopFeeder();
         stopLauncher();
     }
 
-    public void stopFeeder() {
+    /// Set launch feeder server back to "0" position
+    public void resetFeeder() {
         // Set feeders to a preset value to stop the servos.
-        launchFeeder.setPosition(START_POSITION);
+        launchFeeder.setPosition(FEED_START_POSITION);
+    }
+
+/*    private boolean _triggerActive;
+    public boolean getTriggerActive() {
+        return _triggerActive;
+    }
+    public void triggerFeeder() {
+        // run this in a separate thread so the sleep doesn't interfere with other controls
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // ste this TRUE, so we do not call it again un til done
+                _triggerActive = true;
+                // move launch feeder to 90 degrees
+                launchFeeder.setPosition(FEED_POSITION);
+
+                // hold it there for X amount of time
+                try {
+                    sleep(FEED_TIME_MILLISECONDS);
+                } catch (InterruptedException e) {
+                    // nothing should interrupt the sleep
+                }
+                // move launch feeder back to "0" position
+                resetFeeder();
+                // set it to FALSE, so we can call it again
+                _triggerActive = false;
+            }
+        }).start();
+    }
+*/
+    /*
+
+    // Manual control function to increase launch speed by 100
+    // Used for testing and calibration
+    public void incrementLaunchSpeed() {
+        _launchSpeed = _launchSpeed+100;
+    }
+
+    // Manual control function to decrease launch speed by 100
+    // Used for testing and calibration
+    public void decrementLaunchSpeed() {
+        _launchSpeed = _launchSpeed-100;
+    }
+*/
+    /*
+    // Sets both upper and lower launch motors to the same _launchSpeed
+    public void setMotorVelocity() {
+        lowerLaunch.setVelocity(_launchSpeed);
+        upperLaunch.setVelocity(_launchSpeed);
+    }
+
+    public void setMotorVelocityForDistance(double rangeinCm) {
+        // TODO: calculate appropriate motor velocity based on range
+        _launchSpeed = 0;
+        setMotorVelocity();
+    }
+*/
+    ///  Returns the commanded _launchSpeed
+    public double getTargetLaunchSpeed() {
+        return LAUNCHER_TARGET_VELOCITY;
+                //_launchSpeed;
+    }
+
+    /// Returns the measured upper launch motor velocity
+    public double getUpperVelocity() {
+        return upperLaunch.getVelocity();
+    }
+
+    /// Returns the measured lower launch motor velocity
+    public double getLowerVelocity() {
+        return lowerLaunch.getVelocity();
+    }
+
+
+    /*
+    Launch state machine below not currently used
+     */
+    public String getState() {
+        return launchState.toString();
+    }
+
+    /// Used to start the auto launcher state machine - currently unused
+    public void startLauncher(){
+        if (launchState == LaunchState.IDLE) {
+            // transition states
+            launchState = LaunchState.SPIN_UP;
+        }
+    }
+
+    public void stopLauncher () {
+  //      _launchSpeed = 0;
+  //      setMotorVelocity();
+
+        //stopFeeder();
+        upperLaunch.setVelocity(STOP_SPEED);
+        lowerLaunch.setVelocity(STOP_SPEED);
+        launchState = LaunchState.IDLE;
     }
 
     public void updateState () {
-        switch (launchState) {
+       switch (launchState) {
             case IDLE:
                 break;
             case SPIN_UP:
+                //feederTimer.reset();
                 upperLaunch.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 lowerLaunch.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if ((upperLaunch.getVelocity() > LAUNCHER_MIN_VELOCITY) &&
@@ -102,15 +219,38 @@ public class Launcher {
                 launchState = LaunchState.LAUNCHING;
                 break;
             case LAUNCHING:
-                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-                    stopFeeder();
+                if (feederTimer.seconds() > FEED_TIME_MILLISECONDS) {
+                    resetFeeder();
                     // transition state
                     launchState = LaunchState.IDLE;
                 }
                 break;
         }
     }
+/*
+    public void launchMotorOn () {
+        upperLaunch.setPower(0.05);
+        lowerLaunch.setPower(0.05);
+    }
 
+    public void launchMotorOff () {
+        upperLaunch.setPower(0);
+        lowerLaunch.setPower(0);
+    }
+
+ */
+    public void loadBall () {
+        launchFeeder.setPosition(FEED_POSITION);
+        /*try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        stopFeeder();*/
+    }
+
+
+/*
     public void startLauncher(){
         if (launchState == LaunchState.IDLE) {
             // transition states
@@ -120,8 +260,8 @@ public class Launcher {
 
     public void stopLauncher () {
         stopFeeder();
-        upperLaunch.setVelocity(LAUNCHER_STOP);
-        lowerLaunch.setVelocity(LAUNCHER_STOP);
+        upperLaunch.setVelocity(STOP_SPEED);
+        lowerLaunch.setVelocity(STOP_SPEED);
         launchState = LaunchState.IDLE;
     }
 
@@ -135,7 +275,6 @@ public class Launcher {
 
     public double getLowerVelocity() {
         return lowerLaunch.getVelocity();
-    }
-
+    }*/
 
 }
