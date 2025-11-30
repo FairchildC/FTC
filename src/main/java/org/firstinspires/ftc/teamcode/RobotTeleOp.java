@@ -30,12 +30,13 @@ public class RobotTeleOp extends OpMode {
 
         // The user has control of the speed of launcher motor without automatically
         // queuing a shot.
-        if (gamepad2.y) {
+        if (gamepad2.leftStickButtonWasPressed()) {
             launcher.startLauncher();
         }
-        else if (gamepad2.b) {
+        else if (gamepad2.rightStickButtonWasPressed()) {
             launcher.stopLauncher();
         }
+
         //For Intake (test if same buttons works)
         if (gamepad2.a) {
             intake.startIntake();
