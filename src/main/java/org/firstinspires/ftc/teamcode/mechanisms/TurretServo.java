@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TurretServo {
     private Servo turretServo;
 
-    private final double TURRET_START_POSITION = 0.0; // nominally 0 degrees, may need to be tuned based on mounting angle of servo
-
+    //private final double TURRET_START_POSITION = 0.0; // nominally 0 degrees, may need to be tuned based on mounting angle of servo
+    private final double TURRET_START_POSITION = 0.5; // pick halfway point to start?
     private double currentTurretAngle;
 
     public void init (HardwareMap hwMap) {
@@ -24,6 +24,9 @@ public class TurretServo {
 
     /// Adjust turret servo to new position
     public void changeTurretByDegrees(double deltaDegrees) {
+
+        // try this
+        double currentTargetAngle = (deltaDegrees * 0.5 / 150) + 0.5;
 
         // TODO: change currentTurretAngle (range: 0 - 1.0) based on input delta angle as measured by the camera (range: -180 - 180)
         // set the turret to the new angle

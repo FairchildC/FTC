@@ -11,15 +11,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Launcher {
-    private final int FEED_TIME_MILLISECONDS = 2000; //The feeder servo runs this long when a shot is requested.
+    private final int FEED_TIME_MILLISECONDS = 500; //The feeder servo runs this long when a shot is requested.
     private final double FEED_START_POSITION = 0.0; // nominally 0 degrees, may need to be tuned based on mounting angle of servo
-    private final double FEED_POSITION = 0.5; // nominally 90 degrees, may need to increase it slightly
+    private final double FEED_POSITION = 0.55; // nominally 90 degrees, may need to increase it slightly
 
     private DcMotorEx lowerLaunch, upperLaunch;
     private Servo launchFeeder;
 
     //private int _launchSpeed = 0; // Commanded launch motor velocity
-
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -32,7 +31,6 @@ public class Launcher {
 
     private final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     //private final double FULL_SPEED = 1.0;
-
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -73,8 +71,8 @@ public class Launcher {
         upperLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lowerLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        upperLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lowerLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        upperLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lowerLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
         // TODO: tets to see if this makes a difference
@@ -86,7 +84,7 @@ public class Launcher {
 */
 
         // Set left feeder servo to reverse so both servos work to feed ball into robot.
-        launchFeeder.setDirection(Servo.Direction.REVERSE);
+        //launchFeeder.setDirection(Servo.Direction.REVERSE);
         resetFeeder(); // default it to "0" degrees
 
         // Set initial state of launcher to IDLE.
@@ -219,7 +217,7 @@ public class Launcher {
                 launchState = LaunchState.LAUNCHING;
                 break;
             case LAUNCHING:
-                if (feederTimer.seconds() > FEED_TIME_MILLISECONDS) {
+                if (feederTimer.milliseconds() > FEED_TIME_MILLISECONDS) {
                     resetFeeder();
                     // transition state
                     launchState = LaunchState.IDLE;

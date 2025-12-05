@@ -47,7 +47,6 @@ public class RobotTeleOp2 extends OpMode {
             // default back to neutral/default
             // turret.resetTurret();
             // and turn launch motors off
-                      
             launcher.stopLauncher();
         }
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -57,7 +56,6 @@ public class RobotTeleOp2 extends OpMode {
             // The user has control of the speed of launcher motor without automatically
             // queuing a shot.
             if (gamepad2.leftStickButtonWasPressed()) {
-                //launcher.setMotorVelocity();
                 launcher.startLauncher();
             }
             else if (gamepad2.rightStickButtonWasPressed()) {

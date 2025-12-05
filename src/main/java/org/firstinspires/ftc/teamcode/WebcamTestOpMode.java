@@ -55,7 +55,6 @@ public class WebcamTestOpMode  extends OpMode {
         }
       //  launcher.setMotorVelocity();
 
-        launcher.setMotorVelocity();
 
         if (gamepad1.right_trigger > .5) {
        //     if (!launcher.getTriggerActive()) {

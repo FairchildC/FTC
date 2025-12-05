@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
@@ -16,6 +17,7 @@ public class RobotAuto extends OpMode {
         FINISHED
     }
     State state = State.MOVE_FORWARD;
+    ElapsedTime driveTimer = new ElapsedTime();
 
     @Override
     public void init() {
@@ -32,6 +34,12 @@ public class RobotAuto extends OpMode {
 
         switch (state) {
             case MOVE_FORWARD:
+                driveTimer.reset();
+                while (driveTimer.seconds() < 2) {
+                    drive.drive(0.75, 0, 0);
+                }
+                drive.drive(0,0,0);
+                state = State.FINISHED;
                 break;
             case FINISHED:
                 break;
