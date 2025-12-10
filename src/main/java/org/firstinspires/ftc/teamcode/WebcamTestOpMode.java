@@ -29,14 +29,12 @@ public class WebcamTestOpMode  extends OpMode {
         aprilTagWebcam.update();
         AprilTagDetection id24 = aprilTagWebcam.getTagBySpecificId(24); // TAG ID 24 is the red goal
         aprilTagWebcam.displayDetectionTelemetry(id24);
-        // NOTE: we will need a separate OPMODE (otherwise identical) that sets the target TAGID to BLUE (#??)
-        double distanceToGoalCM = 0;
-
-        if (id24 != null) {
+        // NOTE: we will need a separate OPMODE (otherwise identical) that sets the target TAGID to BLUE (#20)
+        if(id24 != null) {
             double angleToTag = id24.ftcPose.yaw;
             //turret.changeTurretByDegrees(angleToTag);
 
-            distanceToGoalCM = id24.ftcPose.range;
+            double distanceToGoalCM = id24.ftcPose.range;
             // NOTE: use this after distance vs speed has been measured and calibrated
             //launcher.setMotorVelocityForDistance(distanceToGoalCM);
         } else {

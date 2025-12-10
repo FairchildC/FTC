@@ -5,6 +5,7 @@ import static java.lang.Thread.sleep;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -73,6 +74,9 @@ public class Launcher {
 
         upperLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lowerLaunch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        upperLaunch.setDirection(DcMotorSimple.Direction.REVERSE);
+        lowerLaunch.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         // TODO: tets to see if this makes a difference
